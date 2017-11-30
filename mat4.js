@@ -15,7 +15,7 @@ smul: function(mata,matb,sz) { var ret = Array(sz*sz).fill(0);
 rotate: function(angle,x,y,z) {
   var c = Math.cos(angle); var s = Math.sin(angle);
   return [x*x*(1-c)+c,   x*y*(1-c)-z*s, x*z*(1-c)+y*s, 0
-         ,y*x*(1-c)+z*s, y*y*(1-c)+c,   y*z*(1-c)-x*z, 0
+         ,y*x*(1-c)+z*s, y*y*(1-c)+c,   y*z*(1-c)-x*s, 0
          ,x*z*(1-c)-y*s, y*z*(1-c)+x*s, z*z*(1-c)+c,   0
          ,0,             0,             0,             1]; },
 

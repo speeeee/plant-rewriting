@@ -97,12 +97,12 @@ draw(perspective);
 
 // controls //
 var omx = 0; var omy = 0;
-var camera = { x: 0, y: 0 };
+var camera = { tht: 0, phi: 0 };
 canvas.addEventListener("mousemove", function(evt) {
   if(omx==0&&omy==0) { omx = evt.clientX; omy = evt.clientY; return; }
   else { var nm = { x: evt.clientX - omx, y: evt.clientY - omy };
-    camera = { x: camera.x+nm.x*0.001, y: camera.y+nm.y*0.001 };
+    camera = { tht: camera.tht+nm.x*0.001, phi: camera.phi+nm.y*0.001 };
     //gl.uniform4f(disp_loc,camera.x,camera.y,0,1);
-    model= mat4.smul(mat4.rotate(0.001,0,1,0),model,4);
+    model = mat4.smul(mat4.smul(mat4.rotate(nm.x*0.01,0,1,0),mat4.rotate(nm.y*0.01,1,0,0),4),model,4);
     gl.uniformMatrix4fv(model_loc,true,model);
     omx = evt.clientX; omy = evt.clientY; draw(perspective); } });
