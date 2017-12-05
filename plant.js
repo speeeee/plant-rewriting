@@ -111,8 +111,8 @@ canvas.addEventListener("mousemove", function(evt) {
   else { var nm = { x: evt.clientX - omx, y: evt.clientY - omy };
     camera = { tht: camera.tht+nm.x*0.001, phi: camera.phi+nm.y*0.001 };
     //gl.uniform4f(disp_loc,camera.x,camera.y,0,1);
-    var a = mat4.create(); var b = mat4.create(); mat4.fromRotation(a,nm.x*0.01,vec3.fromValues(1,0,0));
-    mat4.fromRotation(b,nm.y*0.01,vec3.fromValues(0,1,0)); mat4.multiply(a,a,b);
+    var a = mat4.create(); var b = mat4.create(); mat4.fromRotation(a,nm.x*0.01,vec3.fromValues(0,1,0));
+    mat4.fromRotation(b,nm.y*0.01,vec3.fromValues(1,0,0)); mat4.multiply(a,a,b);
     mat4.multiply(model,a,model);
     gl.uniformMatrix4fv(model_loc,true,model);
     omx = evt.clientX; omy = evt.clientY; draw(perspective); } });
