@@ -56,7 +56,7 @@ function draw(perspective) {
 
   gl.bindVertexArray(vao);
 
-  gl.drawArrays(gl.LINES,0,2); }
+  gl.drawArrays(gl.LINES,0,4); }
 
 // TODO: make javascript parsing of string to drawing (3D)
 // main //
@@ -81,7 +81,7 @@ var pos_buf = gl.createBuffer();
 gl.bindBuffer(gl.ARRAY_BUFFER, pos_buf);
 
 //var pos = [0,0,0, 0,0.5,0, 0.7,0,0];
-var pos = parse("FF");
+var pos = parse("F+F",Math.PI/2);
 console.log(pos);
 gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(pos), gl.STATIC_DRAW);
 
