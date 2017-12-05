@@ -56,7 +56,7 @@ function draw(perspective) {
 
   gl.bindVertexArray(vao);
 
-  gl.drawArrays(gl.TRIANGLES,0,3); }
+  gl.drawArrays(gl.LINES,0,2); }
 
 // TODO: make javascript parsing of string to drawing (3D)
 // main //
@@ -68,7 +68,6 @@ gl.enable(gl.DEPTH_TEST);
 var model = mat4.create();
 //var view = [1,0,0,0, 0,1,0,0, 0,0,1,-2.5, 0,0,0,1];
 var view = mat4.create(); mat4.fromTranslation(view,vec3.fromValues(0,0,-2.5));
-console.log(view);
 var ratio = gl.canvas.clientWidth/gl.canvas.clientHeight;
 var perspective = frustum_pers(-ratio,ratio,-1,1,1,500);
 
@@ -81,7 +80,9 @@ var pos_buf = gl.createBuffer();
 
 gl.bindBuffer(gl.ARRAY_BUFFER, pos_buf);
 
-var pos = [0,0,0, 0,0.5,0, 0.7,0,0];
+//var pos = [0,0,0, 0,0.5,0, 0.7,0,0];
+var pos = parse("FF");
+console.log(pos);
 gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(pos), gl.STATIC_DRAW);
 
 var vao = gl.createVertexArray();
