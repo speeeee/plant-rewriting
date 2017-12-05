@@ -32,12 +32,18 @@ function createProgram(gl,vs,fs) {
   if(success) { return program; }
   console.log(gl.getProgramInfoLog(program)); gl.deleteProgram(program); }
 
+function frustum_pers(left, right, bottom, topl, near, far) {
+  return mat4.fromValues(2*near/(right-left),0,(right+left)/(right-left),0
+                        ,0,2*near/(topl-bottom),(topl+bottom)/(topl-bottom),0
+                        ,0,0,-(far+near)/(far-near),-2*far*near/(far-near)
+                        ,0,0,-1,0); }
+
 function resize(canvas,perspective) {
   var disp_width = canvas.clientWidth;
   var disp_height = canvas.clientHeight;
   if(disp_width!=canvas.width||disp_height!=canvas.height) { canvas.width = disp_width; canvas.height = disp_height;
     var ratio = canvas.width/canvas.height;
-    perspective = mat4.frustum_pers(-ratio,ratio,-1,1,1,500); } }
+    perspective = frustum_pers(-ratio,ratio,-1,1,1,500); } }
 
 // draw //
 function draw(perspective) {
@@ -52,17 +58,19 @@ function draw(perspective) {
 
   gl.drawArrays(gl.TRIANGLES,0,3); }
 
+// TODO: make javascript parsing of string to drawing (3D)
 // main //
 var canvas = document.getElementById("c");
 var gl = canvas.getContext("webgl2");
 
 gl.enable(gl.DEPTH_TEST);
 
-var model = [1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1];
-var view = [1,0,0,0, 0,1,0,0, 0,0,1,-2.5, 0,0,0,1];
+var model = mat4.create();
+//var view = [1,0,0,0, 0,1,0,0, 0,0,1,-2.5, 0,0,0,1];
+var view = mat4.create(); mat4.fromTranslation(view,vec3.fromValues(0,0,-2.5));
+console.log(view);
 var ratio = gl.canvas.clientWidth/gl.canvas.clientHeight;
-var perspective = mat4.frustum_pers(-ratio,ratio,-1,1,1,500);
-console.log(perspective); console.log(ratio);
+var perspective = frustum_pers(-ratio,ratio,-1,1,1,500);
 
 var vs = createShader(gl,gl.VERTEX_SHADER,vss);
 var fs = createShader(gl,gl.FRAGMENT_SHADER,fss);
@@ -88,7 +96,7 @@ var disp_loc = gl.getUniformLocation(program,"u_disp");
 var model_loc = gl.getUniformLocation(program,"u_model");
 gl.uniformMatrix4fv(model_loc,true,model);
 var view_loc = gl.getUniformLocation(program,"u_view");
-gl.uniformMatrix4fv(view_loc,true,view);
+gl.uniformMatrix4fv(view_loc,false,view);
 var proj_loc = gl.getUniformLocation(program,"u_proj");
 gl.uniformMatrix4fv(proj_loc,true,perspective);
 gl.uniform4f(disp_loc,0,0,0,1);
@@ -99,10 +107,12 @@ draw(perspective);
 var omx = 0; var omy = 0;
 var camera = { tht: 0, phi: 0 };
 canvas.addEventListener("mousemove", function(evt) {
-  if(omx==0&&omy==0) { omx = evt.clientX; omy = evt.clientY; return; }
+  if(omx==0&&omy==0||evt.buttons!=1) { omx = evt.clientX; omy = evt.clientY; return; }
   else { var nm = { x: evt.clientX - omx, y: evt.clientY - omy };
     camera = { tht: camera.tht+nm.x*0.001, phi: camera.phi+nm.y*0.001 };
     //gl.uniform4f(disp_loc,camera.x,camera.y,0,1);
-    model = mat4.smul(mat4.smul(mat4.rotate(nm.x*0.01,0,1,0),mat4.rotate(nm.y*0.01,1,0,0),4),model,4);
+    var a = mat4.create(); var b = mat4.create(); mat4.fromRotation(a,nm.x*0.01,vec3.fromValues(1,0,0));
+    mat4.fromRotation(b,nm.y*0.01,vec3.fromValues(0,1,0)); mat4.multiply(a,a,b);
+    mat4.multiply(model,a,model);
     gl.uniformMatrix4fv(model_loc,true,model);
     omx = evt.clientX; omy = evt.clientY; draw(perspective); } });
