@@ -58,7 +58,7 @@ function parse(str,a) {
       default: n.push(c); return n; } },[]).toString(); }*/
 
 //parse_expr : String -> Number
-function parse_expr(a) { var op_loc; console.log(a);
+function parse_expr(a) { var op_loc;
   var q = parseInt(a); if(q.toString()=="NaN"&&a[0]=='{') { var d = 1; var i = 0;
     for(i=1;d!=0;i++) { if(a[i]=='{') { d++; } else if(a[i]=='}') { d--; } } q = parse_expr(a.slice(1,i-1));
     op_loc = i; }
@@ -82,7 +82,7 @@ function match_production(p,t) {
   var ret = JSON.parse(JSON.stringify(p.succ));
   if(p.pred.type=="term"&&p.pred.val==t.val) { return ret; }
   else if(p.pred.type=="module"&&p.pred.val.n==t.val.n) {
-    var params = p.pred.val.p.split(","); var nvals = t.val.p.split(","); console.log(params); console.log(nvals);
+    var params = p.pred.val.p.split(","); var nvals = t.val.p.split(",");
     for(var j=0;j<ret.length;j++) { if(ret[j].type=="module") { for(var i=0;i<params.length;i++) {
         var g = new RegExp(params[i],"g"); ret[j].val.p = ret[j].val.p.replace(g,nvals[i]); }
       ret[j].val.p = ret[j].val.p.split(",").map(function(e) { return parse_expr(e).toString(); }).join(","); } }
@@ -98,7 +98,7 @@ function apply_productions(ps,init) {
   var lret = init; var ret = []; var q;
   for(var k=0;k<lret.length;k++) { var j=0; for(j=0;j<ps.length;j++) {
       q = match_production(ps[j],lret[k]); if(q) { ret = ret.concat(q); break; } }
-    if(j==ps.length) { ret.push(lret[k]); } lret = ret.slice(); ret = []; } return lret; }
+    if(j==ps.length) { ret.push(lret[k]); } } return ret; }
 
 /*function apply_productions(ps,d,init) {
   var ret = []; var lret = init.split(""); var j = 0;
@@ -110,6 +110,8 @@ function apply_productions(ps,init) {
 var prod_a = parse_production(tokenize("A:_->AB"));
 var prod_b = parse_production(tokenize("A(t):_->A(t+1)B"));
 var prod_c = parse_production(tokenize("C(t,c):_->BC(t+5,c+{2*3})D(t+4)A"));
+var prods = [prod_a,prod_b,prod_c];
 console.log(match_production(prod_a,tokenize("A")[0]));
 console.log(match_production(prod_b,tokenize("A(3)")[0]));
 console.log(match_production(prod_c,tokenize("C(2,3)")[0]));
+console.log(apply_productions(prods,tokenize("AAA(3)C(4,5)")));
