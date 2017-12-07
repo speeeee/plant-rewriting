@@ -39,6 +39,15 @@ function parse(str,a) {
         case ']': n.states.pop(); return n; }
       var q = {'+':r_U(a),'-':r_U(-a),'&':r_L(a),'^':r_L(-a),'\\':r_H(a),'/':r_H(-a),'|':r_U(Math.PI)}[c.val];
       if(q !== undefined) { vec3.transformMat3(nlast.h,nlast.h,q);
+        vec3.transformMat3(nlast.l,nlast.l,q); vec3.transformMat3(nlast.u,nlast.u,q); } return n;
+    case "module":
+      switch(c.val.n) {
+        case 'F': var np = vec3.create(); vec3.add(np,nlast.pos,vec3.scale({},nlast.h,Number(c.val.p)));
+          if(n.draw.length==0) { n.draw = nlast.pos; n.draw = f32concat(n.draw,np); }
+          else { n.draw = f32concat(n.draw,nlast.pos); n.draw = f32concat(n.draw,np); } nlast.pos = np; return n; }
+      var z = Number(c.val.p);
+      var q = {'+':r_U(z),'-':r_U(-z),'&':r_L(z),'^':r_L(-z),'\\':r_H(z),'/':r_H(-z),'|':r_U(Math.PI)}[c.val.n];
+      if(q !== undefined) { vec3.transformMat3(nlast.h,nlast.h,q);
         vec3.transformMat3(nlast.l,nlast.l,q); vec3.transformMat3(nlast.u,nlast.u,q); } return n; } }
     ,{ states: [{ pos: vec3.fromValues(0,0,0), h: vec3.fromValues(0,1,0)
                 , l: vec3.fromValues(1,0,0), u: vec3.fromValues(0,0,-1) }], draw: []}).draw; }
@@ -57,7 +66,7 @@ function parse(str,a) {
 
 //parse_expr : String -> Number
 function parse_expr(a) { var op_loc;
-  var q = parseInt(a); if(q.toString()=="NaN"&&a[0]=='{') { var d = 1; var i = 0;
+  var q = parseFloat(a); if(q.toString()=="NaN"&&a[0]=='{') { var d = 1; var i = 0;
     for(i=1;d!=0;i++) { if(a[i]=='{') { d++; } else if(a[i]=='}') { d--; } } q = parse_expr(a.slice(1,i-1));
     op_loc = i; }
   else { op_loc = q.toString().length; } // handle { and } recursively.
@@ -114,9 +123,9 @@ function compile_program(str) { var depth = 1; var tht = 0;
 
   var prods = prog.slice(i+1).map(function(a){ return parse_production(tokenize(a)) });
   var e = tokenize(prog[i]);
-  for(var z=0;z<depth;z++) { e = apply_productions(prods,e); }
+  for(var z=0;z<depth;z++) { e = apply_productions(prods,e); } console.log(e);
 
-  var r = parse(e,tht); sz = r.length/3;
+  var r = parse(e,tht); console.log(r); sz = r.length/3;
   gl.deleteVertexArray(vao);
 
   var pos_buf = gl.createBuffer();
