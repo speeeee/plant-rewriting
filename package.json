@@ -1,0 +1,26 @@
+{
+  "name": "plant-rewriting",
+  "version": "0.0.1",
+  "description": "draw plants in 3D space using rewrite rules",
+  "main": "app.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/speeeee/plant-rewriting.git"
+  },
+  "author": "Spencer Sallay",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/speeeee/plant-rewriting/issues"
+  },
+  "homepage": "https://github.com/speeeee/plant-rewriting#readme",
+  "dependencies": {
+    "ejs": "^2.5.7",
+    "express": "^4.16.2"
+  }
+}
