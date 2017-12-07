@@ -22,10 +22,8 @@ function tokenize(str) { var q; var ret = []; var s = str.replace(/\s/g,'').spli
     else if(s[i]==':') { q = s.join("").indexOf("->",i); ret.push({ type:"lexp", val:s.slice(i+1,q) }); i=q+2; }
     else { ret.push({ type:"term", val:s[i] }); i++; } } return ret; }
 
-// TODO: make position random.
-// DONE: add brackets for stack.
 // TODO: add normals (possibly not in this function).
-//parse : String -> List Number
+//parse : List Token -> List Number
 function parse(str,a) {
   return str.reduce(
     function(n,c) { var nlast = n.states[n.states.length-1];
@@ -36,11 +34,11 @@ function parse(str,a) {
           var np = vec3.create(); vec3.add(np,nlast.pos,nlast.h);
           if(n.draw.length==0) { n.draw = nlast.pos; n.draw = f32concat(n.draw,np); }
           else { n.draw = f32concat(n.draw,nlast.pos); n.draw = f32concat(n.draw,np); } nlast.pos = np; return n;
-        case '[': a = a*len; var ncl = Object.assign({},nlast);
-          n.states.push(ncl); console.log(ncl); return n;
-        case ']': a = a/len; n.states.pop(); return n; }
+        case '[': var ncl = Object.assign({},nlast);
+          n.states.push(ncl); return n;
+        case ']': n.states.pop(); return n; }
       var q = {'+':r_U(a),'-':r_U(-a),'&':r_L(a),'^':r_L(-a),'\\':r_H(a),'/':r_H(-a),'|':r_U(Math.PI)}[c.val];
-      if(q !== undefined) { console.log(q); vec3.transformMat3(nlast.h,nlast.h,q);
+      if(q !== undefined) { vec3.transformMat3(nlast.h,nlast.h,q);
         vec3.transformMat3(nlast.l,nlast.l,q); vec3.transformMat3(nlast.u,nlast.u,q); } return n; } }
     ,{ states: [{ pos: vec3.fromValues(0,0,0), h: vec3.fromValues(0,1,0)
                 , l: vec3.fromValues(1,0,0), u: vec3.fromValues(0,0,-1) }], draw: []}).draw; }
@@ -77,6 +75,8 @@ function parse_production(t) {
   var cond_loc = t.map(function(a) { return a.type; }).indexOf("lexp");
   return { pred:t[0], cond:t[cond_loc], succ:t.slice(cond_loc+1,t.length) }; }
 
+// TODO: attempt to match production with condition (also define '<','>',etc. for parse_expr, even if the two languages
+//       are disconnected in the specification.
 //match_production : Production -> Token -> List Token | False
 function match_production(p,t) {
   var ret = JSON.parse(JSON.stringify(p.succ));
@@ -106,12 +106,35 @@ function apply_productions(ps,init) {
       if(lret[k]==ps[j].pred) { ret = ret.concat(ps[j].succ.split("")); break; } } if(j==ps.length) { ret.push(lret[k]); } }
     lret = ret.slice(0); ret = []; } return lret.join(""); }*/
 
+function compile_program(str) { var depth = 1; var tht = 0;
+  var prog = str.split("\n"); var i;
+  for(var i=0;prog[i][0]=='#';i++) { var q = prog[i].split(" "); switch(q[0]) {
+    case "#depth": depth = Number(q[1]);
+    case "#angle": tht = Number(q[1]); } }
+
+  var prods = prog.slice(i+1).map(function(a){ return parse_production(tokenize(a)) });
+  var e = tokenize(prog[i]);
+  for(var z=0;z<depth;z++) { e = apply_productions(prods,e); }
+
+  var r = parse(e,tht); sz = r.length/3;
+  gl.deleteVertexArray(vao);
+
+  var pos_buf = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, pos_buf);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(r), gl.STATIC_DRAW);
+
+  vao = gl.createVertexArray();
+  gl.bindVertexArray(vao);
+  gl.enableVertexAttribArray(pos_attrib);
+
+  gl.vertexAttribPointer(pos_attrib,3,gl.FLOAT,false,0,0); }
+
 // testing
-var prod_a = parse_production(tokenize("A:_->AB"));
+/*var prod_a = parse_production(tokenize("A:_->AB"));
 var prod_b = parse_production(tokenize("A(t):_->A(t+1)B"));
 var prod_c = parse_production(tokenize("C(t,c):_->BC(t+5,c+{2*3})D(t+4)A"));
 var prods = [prod_a,prod_b,prod_c];
 console.log(match_production(prod_a,tokenize("A")[0]));
 console.log(match_production(prod_b,tokenize("A(3)")[0]));
 console.log(match_production(prod_c,tokenize("C(2,3)")[0]));
-console.log(apply_productions(prods,tokenize("AAA(3)C(4,5)")));
+console.log(apply_productions(prods,tokenize("AAA(3)C(4,5)")));*/

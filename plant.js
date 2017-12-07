@@ -1,3 +1,5 @@
+// Thursday, 5:30, LWSN B148
+
 var vss = `#version 300 es
 in vec4 a_pos;
 uniform vec4 u_disp;
@@ -56,7 +58,7 @@ function draw(perspective) {
 
   gl.bindVertexArray(vao);
 
-  gl.drawArrays(gl.LINES,0,4); }
+  gl.drawArrays(gl.LINES,0,sz); }
 
 // TODO: make javascript parsing of string to drawing (3D)
 // main //
@@ -75,17 +77,17 @@ var vs = createShader(gl,gl.VERTEX_SHADER,vss);
 var fs = createShader(gl,gl.FRAGMENT_SHADER,fss);
 var program = createProgram(gl,vs,fs);
 
-var pos_attrib = gl.getAttribLocation(program, "a_pos");
+pos_attrib = gl.getAttribLocation(program, "a_pos");
 var pos_buf = gl.createBuffer();
 
 gl.bindBuffer(gl.ARRAY_BUFFER, pos_buf);
 
 //var pos = [0,0,0, 0,0.5,0, 0.7,0,0];
 var pos = parse(tokenize("F+F"),Math.PI/2);
-console.log(pos);
+sz = pos.length/3;
 gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(pos), gl.STATIC_DRAW);
 
-var vao = gl.createVertexArray();
+vao = gl.createVertexArray();
 gl.bindVertexArray(vao);
 gl.enableVertexAttribArray(pos_attrib);
 

@@ -10,9 +10,15 @@
     </style>
   </head>
   <body>
+    <form><textarea name="editor" rows="4" cols="80"></textarea>
+      <input value="Compile" type="button" onClick="compile_program(this.form.editor.value)" /></form>
     <canvas id="c"></canvas>
   </body>
 </html>
+<script type='text/javascript'>
+  // WARNING: globals
+  var sz; var vao; var pos_attrib;
+</script>
 <script src="gl-matrix-min.js"></script>
 <script src="draw.js"></script>
 <script src="plant.js"></script>
