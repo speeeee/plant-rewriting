@@ -7,17 +7,19 @@ function r_H(a) {
   return mat3.fromValues(1,0,0, 0,cos(a),-sin(a), 0,sin(a),cos(a)); }
 function minus(a) { return -a; }
 
-function f32concat(a,b) {
+function f32concat(a,b) { console.log(a); console.log(b);
   var r = new Float32Array(a.length+b.length);
-  r.set(a); r.set(b,a.length); return r; }
+  console.log(a.length); console.log(b.length);
+  r.set(a);
+  r.set(b,a.length); return r; }
 
 // prism model used for branches.  Intended to be instanced.
-function prism() { return
+/*function prism() { return
   [[1,0,0],[1/Math.sqrt(2),0,1/Math.sqrt(2)], [1,1,0],[1/Math.sqrt(2),0,1/Math.sqrt(2)], [0,0,1],[1/Math.sqrt(2),0,1/Math.sqrt(2)]
   ,[0,1,1],[1/Math.sqrt(2),0,1/Math.sqrt(2)]
   ,[1,1,0],[-1/Math.sqrt(2),0,1/Math.sqrt(2)], [1,0,0],[-1/Math.sqrt(2),0,1/Math.sqrt(2)],
   ,[0,1,-1],[-1/Math.sqrt(2),0,-1/Math.sqrt(2)], [0,0,-1],[-1/Math.sqrt(2),0,-1/Math.sqrt(2)]
-  ,[1,1,0],[1/Math.sqrt(2),0,-1/Math.sqrt(2)], [1,0,0],[1/Math.sqrt(2),0,-1/Math.sqrt(2)]].map(vec3.create); }
+  ,[1,1,0],[1/Math.sqrt(2),0,-1/Math.sqrt(2)], [1,0,0],[1/Math.sqrt(2),0,-1/Math.sqrt(2)]].map(vec3.create); }*/
 
 // NOTE: indexOf returns 1.
 // NOTE: using String.join is pretty bad, but works.
@@ -42,7 +44,8 @@ function parse(str,a) {
           var np = vec3.create(); vec3.add(np,nlast.pos,nlast.h);
           if(n.draw.length==0) { n.draw = nlast.pos; n.draw = f32concat(n.draw,np); }
           else { n.draw = f32concat(n.draw,nlast.pos); n.draw = f32concat(n.draw,np); } nlast.pos = np; return n;
-        case '[': var ncl = JSON.parse(JSON.stringify(nlast));
+        case '[':
+          var ncl = { pos: vec3.clone(nlast.pos), h: vec3.clone(nlast.h), l: vec3.clone(nlast.l), u: vec3.clone(nlast.u) };
           n.states.push(ncl); return n;
         case ']': n.states.pop(); return n; }
       var q = {'+':r_U(a),'-':r_U(-a),'&':r_L(a),'^':r_L(-a),'\\':r_H(a),'/':r_H(-a),'|':r_U(Math.PI)}[c.val];
@@ -50,7 +53,7 @@ function parse(str,a) {
         vec3.transformMat3(nlast.l,nlast.l,q); vec3.transformMat3(nlast.u,nlast.u,q); } return n;
     case "module":
       switch(c.val.n) {
-        case 'F': var np = vec3.create(); vec3.add(np,nlast.pos,vec3.scale({},nlast.h,Number(c.val.p)));
+        case 'F': var np = vec3.create(); console.log("nlast: ",nlast); vec3.add(np,nlast.pos,vec3.scale({},nlast.h,Number(c.val.p)));
           if(n.draw.length==0) { n.draw = nlast.pos; n.draw = f32concat(n.draw,np); }
           else { n.draw = f32concat(n.draw,nlast.pos); n.draw = f32concat(n.draw,np); } nlast.pos = np; return n; }
       var z = Number(c.val.p);
@@ -123,11 +126,11 @@ function apply_productions(ps,init) {
       if(lret[k]==ps[j].pred) { ret = ret.concat(ps[j].succ.split("")); break; } } if(j==ps.length) { ret.push(lret[k]); } }
     lret = ret.slice(0); ret = []; } return lret.join(""); }*/
 
-function compile_program(str) { var depth = 1; var tht = 0;
+function compile_program(str) { var depth = 1; var tht = Math.PI/2;
   var prog = str.split("\n"); var i;
   for(var i=0;prog[i][0]=='#';i++) { var q = prog[i].split(" "); switch(q[0]) {
-    case "#depth": depth = Number(q[1]);
-    case "#angle": tht = Number(q[1]); } }
+    case "#depth": depth = Number(q[1]); break;
+    case "#angle": tht = parseFloat(q[1]); } }
 
   var prods = prog.slice(i+1).map(function(a){ return parse_production(tokenize(a)) });
   var e = tokenize(prog[i]);
