@@ -42,7 +42,7 @@ function parse(str,a) {
           var np = vec3.create(); vec3.add(np,nlast.pos,nlast.h);
           if(n.draw.length==0) { n.draw = nlast.pos; n.draw = f32concat(n.draw,np); }
           else { n.draw = f32concat(n.draw,nlast.pos); n.draw = f32concat(n.draw,np); } nlast.pos = np; return n;
-        case '[': var ncl = Object.assign({},nlast);
+        case '[': var ncl = JSON.parse(JSON.stringify(nlast));
           n.states.push(ncl); return n;
         case ']': n.states.pop(); return n; }
       var q = {'+':r_U(a),'-':r_U(-a),'&':r_L(a),'^':r_L(-a),'\\':r_H(a),'/':r_H(-a),'|':r_U(Math.PI)}[c.val];
