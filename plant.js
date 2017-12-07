@@ -14,7 +14,7 @@ precision mediump float;
 out vec4 outc;
 
 void main() {
-  outc = vec4(1,0,0.5,1); }
+  outc = vec4(0,0.7,0.2,1); }
 `;
 
 function createShader(gl, type, sc) {
@@ -53,7 +53,7 @@ function draw(perspective) {
 
   gl.viewport(0,0,gl.canvas.width,gl.canvas.height);
   gl.useProgram(program);
-  gl.clearColor(0,0,0,0);
+  gl.clearColor(0.1,0,0.1,1);
   gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
 
   gl.bindVertexArray(vao);

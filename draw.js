@@ -11,6 +11,14 @@ function f32concat(a,b) {
   var r = new Float32Array(a.length+b.length);
   r.set(a); r.set(b,a.length); return r; }
 
+// prism model used for branches.  Intended to be instanced.
+function prism() { return
+  [[1,0,0],[1/Math.sqrt(2),0,1/Math.sqrt(2)], [1,1,0],[1/Math.sqrt(2),0,1/Math.sqrt(2)], [0,0,1],[1/Math.sqrt(2),0,1/Math.sqrt(2)]
+  ,[0,1,1],[1/Math.sqrt(2),0,1/Math.sqrt(2)]
+  ,[1,1,0],[-1/Math.sqrt(2),0,1/Math.sqrt(2)], [1,0,0],[-1/Math.sqrt(2),0,1/Math.sqrt(2)],
+  ,[0,1,-1],[-1/Math.sqrt(2),0,-1/Math.sqrt(2)], [0,0,-1],[-1/Math.sqrt(2),0,-1/Math.sqrt(2)]
+  ,[1,1,0],[1/Math.sqrt(2),0,-1/Math.sqrt(2)], [1,0,0],[1/Math.sqrt(2),0,-1/Math.sqrt(2)]].map(vec3.create); }
+
 // NOTE: indexOf returns 1.
 // NOTE: using String.join is pretty bad, but works.
 // creates tokens for production a : b -> c .
